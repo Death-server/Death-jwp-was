@@ -115,7 +115,7 @@ public class RequestHandler extends Thread {
                     DataBase.addUser(new User(userId, password, name, email));
 
                     byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
-                    response302Header(dos,body.length,"http://localhost:8080/index.html");
+                    response302Header(dos, body.length, "http://localhost:8080/index.html");
                     responseBody(dos, body);
                 }
             }
