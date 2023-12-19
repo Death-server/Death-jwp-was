@@ -9,9 +9,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import db.DataBase;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +36,11 @@ public class RequestHandler extends Thread {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
             String requestLine;
-            String requestMethod;
-            String path;
+            String requestMethod = null;
+            String path = null;
             String httpVersion;
             Map<String, String> requestHeaders = new HashMap<>();
+            Map<String, String> queryString = new HashMap<>();
             DataOutputStream dos = new DataOutputStream(out);
             if (br.ready()) {
                 requestLine = br.readLine();
@@ -45,8 +49,45 @@ public class RequestHandler extends Thread {
                 path = splitRequestLine[1];
                 httpVersion = splitRequestLine[2];
 
+                String line = null;
+                while (!(line = br.readLine()).equals("")) {
+                    String[] headerKeyVal = line.split(": ");
+                    requestHeaders.put(headerKeyVal[0], headerKeyVal[1]);
+                }
+                if (path.contains("?")) {
+                    String[] pathQueryString = path.split("\\?");
+                    path = pathQueryString[0];
+                    String queryStrings = pathQueryString[1];
+
+                    String[] splitQueryStrings = queryStrings.split("&");
+                    Arrays.stream(splitQueryStrings).forEach(
+                            item -> {
+                                String[] keyVal = item.split("=");
+                                queryString.put(keyVal[0], keyVal[1]);
+                            }
+                    );
+                }
+
                 if (requestMethod.equals("GET") && path.equals("/index.html")) {
                     byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+                    response200Header(dos, body.length);
+                    responseBody(dos, body);
+                }
+
+                if (requestMethod.equals("GET") && path.equals("/user/form.html")) {
+                    byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+                    response200Header(dos, body.length);
+                    responseBody(dos, body);
+                }
+
+                if (requestMethod.equals("GET") && path.equals("/user/create")) {
+                    String userId = queryString.get("userId");
+                    String password = queryString.get("password");
+                    String name = queryString.get("name");
+                    String email = queryString.get("email");
+                    DataBase.addUser(new User(userId, password, name, email));
+
+                    byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
                     response200Header(dos, body.length);
                     responseBody(dos, body);
                 }
