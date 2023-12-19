@@ -126,7 +126,7 @@ public class RequestHandler extends Thread {
 
     private void response302Header(DataOutputStream dos, int lengthOfBodyContent, String locationUrl) {
         try {
-            dos.writeBytes("HTTP/1.1 302 CREATED \r\n");
+            dos.writeBytes("HTTP/1.1 302 FOUND \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("Location: " + locationUrl + "\r\n");
