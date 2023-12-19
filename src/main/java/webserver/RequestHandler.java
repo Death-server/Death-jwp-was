@@ -17,6 +17,7 @@ import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.IOUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -35,12 +36,13 @@ public class RequestHandler extends Thread {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
 
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String requestLine;
+            String requestLine = null;
             String requestMethod = null;
             String path = null;
             String httpVersion;
+            String responseBody;
             Map<String, String> requestHeaders = new HashMap<>();
-            Map<String, String> queryString = new HashMap<>();
+            Map<String, String> requestParam = new HashMap<>();
             DataOutputStream dos = new DataOutputStream(out);
             if (br.ready()) {
                 requestLine = br.readLine();
@@ -52,8 +54,9 @@ public class RequestHandler extends Thread {
                 String line = null;
                 while (!(line = br.readLine()).equals("")) {
                     String[] headerKeyVal = line.split(": ");
-                    requestHeaders.put(headerKeyVal[0], headerKeyVal[1]);
+                    requestHeaders.put(headerKeyVal[0].trim(), headerKeyVal[1].trim());
                 }
+
                 if (path.contains("?")) {
                     String[] pathQueryString = path.split("\\?");
                     path = pathQueryString[0];
@@ -63,7 +66,18 @@ public class RequestHandler extends Thread {
                     Arrays.stream(splitQueryStrings).forEach(
                             item -> {
                                 String[] keyVal = item.split("=");
-                                queryString.put(keyVal[0], keyVal[1]);
+                                requestParam.put(keyVal[0], keyVal[1]);
+                            }
+                    );
+                }
+                String contentLength = requestHeaders.getOrDefault("Content-Length",null);
+                if (contentLength != null) {
+                    responseBody = IOUtils.readData(br, Integer.parseInt(contentLength));
+                    String[] splitRersponseBody = responseBody.split("&");
+                    Arrays.stream(splitRersponseBody).forEach(
+                            item -> {
+                                String[] keyVal = item.split("=");
+                                requestParam.put(keyVal[0], keyVal[1]);
                             }
                     );
                 }
@@ -81,10 +95,22 @@ public class RequestHandler extends Thread {
                 }
 
                 if (requestMethod.equals("GET") && path.equals("/user/create")) {
-                    String userId = queryString.get("userId");
-                    String password = queryString.get("password");
-                    String name = queryString.get("name");
-                    String email = queryString.get("email");
+                    String userId = requestParam.get("userId");
+                    String password = requestParam.get("password");
+                    String name = requestParam.get("name");
+                    String email = requestParam.get("email");
+                    DataBase.addUser(new User(userId, password, name, email));
+
+                    byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
+                    response200Header(dos, body.length);
+                    responseBody(dos, body);
+                }
+
+                if (requestMethod.equals("POST") && path.equals("/user/create")) {
+                    String userId = requestParam.get("userId");
+                    String password = requestParam.get("password");
+                    String name = requestParam.get("name");
+                    String email = requestParam.get("email");
                     DataBase.addUser(new User(userId, password, name, email));
 
                     byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
