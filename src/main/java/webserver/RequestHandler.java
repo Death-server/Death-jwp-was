@@ -46,15 +46,16 @@ public class RequestHandler extends Thread {
             DataOutputStream dos = new DataOutputStream(out);
             if (br.ready()) {
                 requestLine = br.readLine();
+                System.out.println("requestLine = " + requestLine);
                 String[] splitRequestLine = requestLine.split(" ");
                 requestMethod = splitRequestLine[0];
                 path = splitRequestLine[1];
-                httpVersion = splitRequestLine[2];
+//                httpVersion = splitRequestLine[2];
 
                 String line = null;
                 while (!(line = br.readLine()).equals("")) {
                     String[] headerKeyVal = line.split(": ");
-                    requestHeaders.put(headerKeyVal[0].trim(), headerKeyVal[1].trim());
+                    requestHeaders.put(headerKeyVal[0], headerKeyVal[1]);
                 }
 
                 if (path.contains("?")) {
@@ -70,7 +71,7 @@ public class RequestHandler extends Thread {
                             }
                     );
                 }
-                String contentLength = requestHeaders.getOrDefault("Content-Length",null);
+                String contentLength = requestHeaders.getOrDefault("Content-Length", null);
                 if (contentLength != null) {
                     responseBody = IOUtils.readData(br, Integer.parseInt(contentLength));
                     String[] splitRersponseBody = responseBody.split("&");
@@ -82,8 +83,8 @@ public class RequestHandler extends Thread {
                     );
                 }
 
-                if (requestMethod.equals("GET") && path.equals("/index.html")) {
-                    byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+                if (requestMethod.equals("GET") && (path.equals("/index.html") || path.equals("/"))) {
+                    byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
                     response200Header(dos, body.length);
                     responseBody(dos, body);
                 }
@@ -114,10 +115,22 @@ public class RequestHandler extends Thread {
                     DataBase.addUser(new User(userId, password, name, email));
 
                     byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
-                    response200Header(dos, body.length);
+                    response302Header(dos,body.length,"http://localhost:8080/index.html");
                     responseBody(dos, body);
                 }
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, int lengthOfBodyContent, String locationUrl) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 CREATED \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Location: " + locationUrl + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
