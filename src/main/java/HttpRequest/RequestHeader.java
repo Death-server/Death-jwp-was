@@ -14,7 +14,6 @@ public class RequestHeader {
 
 
     public RequestHeader(String header) {
-
         logger.debug("RequestHeader Constructor");
         String[] parsedHeaders = Parser.parseRequestHeader(header);
 
@@ -28,11 +27,12 @@ public class RequestHeader {
     }
 
     private HttpMethod separateMethod(String method) {
+        final String NO_METHOD_EXCEPTION = "처리할 수 있는 메서드가 없음";
         if(method.equals(HttpMethod.GET.getMethod())) {
             return HttpMethod.GET;
         }
 
-        throw new InvalidParameterException("처리할 수 있는 메서드가 없음");
+        throw new InvalidParameterException(NO_METHOD_EXCEPTION);
     }
 
 
