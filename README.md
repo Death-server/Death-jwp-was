@@ -15,7 +15,18 @@
 * 각 요구사항을 구현하는 것이 중요한 것이 아니라 구현 과정을 통해 학습한 내용을 인식하는 것이 배움에 중요하다. 
 
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
-* 
+- Spring 구조대로 제작하기
+  - [x] RequestHandler를 DispatcherServlet으로 변경
+  - [x] DispatcherServlet에서 HandlerMapping을 통해 URL에 맞는 Controller 탐색<br> 
+        ※ HandlerAdapter은 Bean이 없어 한줄로 끝남.. Dispatcher Servlet에서 담당함.
+    - [x] 컨트롤러 인터페이스 만들고 해당 컨트롤러 만들기
+    - [x] 컨트롤러들을 싱글톤으로 관리하는 HandlerMapping 만들기
+    - [x] DispatcherServlet에서 Controller를 매칭하고 실행
+  - [ ] Controller에서 ModelAndView로 생성
+    - [x] HttpRequest와 HttpResponse로 제작하고 이후 리팩토링할 때 진행할 예정
+  - [x] 해당 내용을 반환하기
+    - [x] ResponseSender 객체를 만들어 HttpResponse의 정보대로 응답 반환
+  - [ ] 리팩토링
 
 ### 요구사항 2 - get 방식으로 회원가입
 * 
