@@ -25,4 +25,13 @@ public class HttpResponse {
     public int getBodySize() {
         return responseBody.getContext().length();
     }
+
+    public String getHeader(HttpStatus httpStatus) {
+        final String NO_HEADER_EXCEPTION = "적절한 헤더 없음";
+
+        if(httpStatus == HttpStatus.OK_200) {
+            return responseHeader.get200Header(responseBody.getContext().length());
+        }
+        throw new RuntimeException(NO_HEADER_EXCEPTION);
+    }
 }

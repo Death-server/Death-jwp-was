@@ -19,11 +19,13 @@ public class ResponseSender {
     public static void forward(HttpResponse httpResponse) {
 
         int bodySize = httpResponse.getBodySize();
+
+
+        final String HEADER_BODY_SEPARATOR = "\r\n";
+
         try {
-            dos.writeBytes("HTTP/1.1 200 OK \r\n");
-            dos.writeBytes("Content-Type: text/html;charset=utf-8 \r\n");
-            dos.writeBytes("Content-Length: " + bodySize + "\r\n");
-            dos.writeBytes("\r\n");
+            dos.writeBytes(httpResponse.getHeader(HttpStatus.OK_200));
+            dos.writeBytes(HEADER_BODY_SEPARATOR);
             dos.write(httpResponse.getBodyContext().getBytes(), 0, bodySize);
         } catch (IOException e) {
             log.error(e.getMessage());
