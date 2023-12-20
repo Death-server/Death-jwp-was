@@ -13,7 +13,7 @@ public class WebServer {
     private static final int DEFAULT_PORT = 8080;
     private static final int THREAD_POOL_SIZE = Runtime.getRuntime().availableProcessors();
 
-    public static void main(String[] args) throws Exception {
+    public static void run(String[] args) throws Exception {
         int port;
         if (args == null || args.length == 0) {
             port = DEFAULT_PORT;
