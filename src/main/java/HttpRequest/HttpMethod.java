@@ -3,7 +3,7 @@ package HttpRequest;
 public enum HttpMethod {
     GET("GET"), POST("POST");
 
-    private String method;
+    private final String method;
 
     HttpMethod(String method) {
         this.method = method;
