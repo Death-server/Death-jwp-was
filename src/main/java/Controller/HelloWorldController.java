@@ -7,6 +7,6 @@ public class HelloWorldController implements Controller{
 
     @Override
     public void execute(HttpRequest httpRequest, HttpResponse httpResponse) {
-        httpResponse.addContext(" Hello World  ");
+        httpResponse.addContext("Hello World");
     }
 }
