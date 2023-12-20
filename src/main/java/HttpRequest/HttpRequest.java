@@ -10,9 +10,9 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class HttpRequest {
-    private static Logger logger = LoggerFactory.getLogger(HttpRequest.class);
-    private RequestHeader requestHeader;
-    private RequestBody requestBody;
+    private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
+    private final RequestHeader requestHeader;
+    private final RequestBody requestBody;
 
     private HttpRequest(RequestHeader requestHeader, RequestBody requestBody) {
         logger.debug("Request Constructor");

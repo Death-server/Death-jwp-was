@@ -8,9 +8,9 @@ import java.security.InvalidParameterException;
 
 public class RequestHeader {
     private static final Logger logger = LoggerFactory.getLogger(RequestHeader.class);
-    private String version;
-    private HttpMethod method;
-    private String url;
+    private final String version;
+    private final HttpMethod method;
+    private final String url;
 
 
     public RequestHeader(String header) {
