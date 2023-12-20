@@ -27,7 +27,7 @@
   - [x] 해당 내용을 반환하기
     - [x] ResponseSender 객체를 만들어 HttpResponse의 정보대로 응답 반환
   - [ ] 리팩토링
-    - [ ] response header 분리
+    - [x] response header 분리
     - [ ] 예외 처리
     - [ ] request Body에서 데이터 읽어 오는 담당 클래스 분리
   - [ ] 테스트 코드 작성
