@@ -1,7 +1,7 @@
 package webserver;
 
 import Controller.Controller;
-import Handler.HandlerMapping;
+import Handler.HandlerMapper;
 import HttpRequest.HttpRequest;
 import HttpResponse.HttpResponse;
 import HttpResponse.ResponseSender;
@@ -33,9 +33,9 @@ public class DispatcherServlet implements Runnable {
 
             HttpRequest httpRequest = HttpRequest.of(header);
             HttpResponse httpResponse = HttpResponse.of();
-            HandlerMapping handlerMapping = HandlerMapping.of();
+            HandlerMapper handlerMapper = HandlerMapper.of();
 
-            Controller controller = handlerMapping.getController(httpRequest);
+            Controller controller = handlerMapper.getController(httpRequest);
             controller.execute(httpRequest, httpResponse);
 
             ResponseSender.send(dos, httpResponse);
