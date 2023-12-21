@@ -3,25 +3,18 @@ package util;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 
 public class HttpRequestUtils {
-    /**
-     * @param queryString은
-     *            URL에서 ? 이후에 전달되는 field1=value1&field2=value2 형식임
-     * @return
-     */
+
     public static Map<String, String> parseQueryString(String queryString) {
         return parseValues(queryString, "&");
     }
 
-    /**
-     * @param 쿠키
-     *            값은 name1=value1; name2=value2 형식임
-     * @return
-     */
+
     public static Map<String, String> parseCookies(String cookies) {
         return parseValues(cookies, ";");
     }
@@ -48,6 +41,23 @@ public class HttpRequestUtils {
 
         return new Pair(tokens[0], tokens[1]);
     }
+
+    public static String[] parseRequestFirstLine(String header) {
+        final String INVALID_HEADER_EXCEPTION = "Request 헤더가 이상함";
+
+        if(Strings.isNullOrEmpty(header)) {
+            throw new IllegalArgumentException(INVALID_HEADER_EXCEPTION);
+        }
+
+
+        String[] parsedHeaders = header.split(" ");
+
+        return Stream.concat(
+                Arrays.stream(new String[] {parsedHeaders[0], parsedHeaders[2]}),
+                Arrays.stream(parsedHeaders[1].split("\\?")))
+                .toArray(String[]::new);
+    }
+
 
     public static Pair parseHeader(String header) {
         return getKeyValue(header, ": ");
