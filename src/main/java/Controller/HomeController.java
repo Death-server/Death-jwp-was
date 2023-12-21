@@ -4,10 +4,12 @@ import HttpRequest.HttpRequest;
 import HttpResponse.HttpResponse;
 import util.IOUtils;
 
-public class HomeController implements Controller{
+public class HomeController implements Controller {
 
     @Override
     public void execute(HttpRequest httpRequest, HttpResponse httpResponse) {
-        httpResponse.addContext(IOUtils.getFileText(httpRequest.getUrl()));
+        final String HOME = "/index.html";
+
+        httpResponse.addContext(IOUtils.getFileText(HOME));
     }
 }
