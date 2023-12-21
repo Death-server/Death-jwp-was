@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
 import java.security.InvalidParameterException;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class RequestHeader {
     private static final Logger logger = LoggerFactory.getLogger(RequestHeader.class);
