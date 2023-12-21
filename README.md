@@ -33,7 +33,10 @@
   - [ ] 테스트 코드 작성
 
 ### 요구사항 2 - get 방식으로 회원가입
-* 
+- [ ] Forward Controller 만들어서 html 파일 그대로 반환 해주기
+- [ ] url에서 쿼리 추출
+  - [ ] Query 클래스 추가
+- SignUpController 추가
 
 ### 요구사항 3 - post 방식으로 회원가입
 * 
