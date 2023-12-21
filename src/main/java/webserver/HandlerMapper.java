@@ -1,9 +1,9 @@
-package Handler;
+package webserver;
 
 
-import HttpRequest.HttpRequest;
+import request.HttpRequest;
 import com.google.common.collect.Maps;
-import Controller.*;
+import controller.*;
 import java.util.Map;
 
 public class HandlerMapper {

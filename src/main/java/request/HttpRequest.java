@@ -1,4 +1,4 @@
-package HttpRequest;
+package request;
 
 import com.google.common.base.Strings;
 import org.slf4j.Logger;

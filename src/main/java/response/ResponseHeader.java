@@ -1,4 +1,4 @@
-package HttpResponse;
+package response;
 
 public class ResponseHeader {
 

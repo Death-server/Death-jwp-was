@@ -17,7 +17,7 @@
 ### 요구사항 1 - http://localhost:8080/index.html로 접속시 응답
 - Spring 구조대로 제작하기
   - [x] RequestHandler를 DispatcherServlet으로 변경
-  - [x] DispatcherServlet에서 HandlerMapping을 통해 URL에 맞는 Controller 탐색<br> 
+  - [x] DispatcherServlet에서 HandlerMapping을 통해 URL에 맞는 controller 탐색<br> 
         ※ HandlerAdapter은 Bean이 없어 한줄로 끝남.. Dispatcher Servlet에서 담당함.
     - [x] 컨트롤러 인터페이스 만들고 해당 컨트롤러 만들기
     - [x] 컨트롤러들을 싱글톤으로 관리하는 HandlerMapping 만들기
@@ -33,7 +33,7 @@
   - [ ] 테스트 코드 작성
 
 ### 요구사항 2 - get 방식으로 회원가입
-- [x] Forward Controller 만들어서 html 파일 그대로 반환 해주기
+- [x] Forward controller 만들어서 html 파일 그대로 반환 해주기
 - [x] url에서 쿼리 추출
   - [x] Query Map 추가
 - [x] 회원가입 기능 구현
@@ -42,7 +42,7 @@
 - [ ] 리팩토링
   - [x] Parser 클래스 합치기
   - [ ] 예외 처리
-  - [x] Forward Controller 생성
+  - [x] Forward controller 생성
 - [ ] 테스트 코드 작성
 
 ### 요구사항 3 - post 방식으로 회원가입

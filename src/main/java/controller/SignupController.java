@@ -1,8 +1,8 @@
-package Controller;
+package controller;
 
-import HttpRequest.HttpRequest;
-import HttpResponse.HttpResponse;
-import Service.SignupService;
+import request.HttpRequest;
+import response.HttpResponse;
+import service.SignupService;
 import model.User;
 import util.IOUtils;
 

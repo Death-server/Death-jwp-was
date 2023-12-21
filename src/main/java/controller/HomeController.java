@@ -1,7 +1,7 @@
-package Controller;
+package controller;
 
-import HttpRequest.HttpRequest;
-import HttpResponse.HttpResponse;
+import request.HttpRequest;
+import response.HttpResponse;
 import util.IOUtils;
 
 public class HomeController implements Controller {

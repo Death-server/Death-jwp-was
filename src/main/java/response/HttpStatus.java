@@ -1,4 +1,4 @@
-package HttpResponse;
+package response;
 
 public enum HttpStatus {
     OK_200(200, "OK"), BAD_REQUEST_400(400, "BAD REQUEST"), REDIRECT_302(302, "FOUND");

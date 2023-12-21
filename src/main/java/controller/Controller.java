@@ -1,7 +1,7 @@
-package Controller;
+package controller;
 
-import HttpRequest.HttpRequest;
-import HttpResponse.HttpResponse;
+import request.HttpRequest;
+import response.HttpResponse;
 
 public interface Controller {
     void execute(HttpRequest httpRequest, HttpResponse httpResponse);
