@@ -6,13 +6,13 @@ import com.google.common.collect.Maps;
 import Controller.*;
 import java.util.Map;
 
-public class HandlerMapping {
+public class HandlerMapper {
 
     private static final Map<String, Controller> controllers = Maps.newHashMap();
-    private static final HandlerMapping handlerMapping = new HandlerMapping();
+    private static final HandlerMapper HANDLER_MAPPER = new HandlerMapper();
     private static final ForwardController forwardController = new ForwardController();
 
-    private HandlerMapping() {
+    private HandlerMapper() {
         init();
     }
 
@@ -21,8 +21,8 @@ public class HandlerMapping {
         controllers.put("/user/create", new SignupController());
     }
 
-    public static HandlerMapping of() {
-        return handlerMapping;
+    public static HandlerMapper of() {
+        return HANDLER_MAPPER;
     }
 
     public Controller getController(HttpRequest httpRequest) {
