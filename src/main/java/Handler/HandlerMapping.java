@@ -1,26 +1,24 @@
 package Handler;
 
-import Controller.Controller;
-import Controller.HelloWorldController;
-import Controller.HomeController;
-import HttpRequest.HttpRequest;
 
+import HttpRequest.HttpRequest;
+import com.google.common.collect.Maps;
+import Controller.*;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class HandlerMapping {
 
-    private static final Map<String, Controller> controllers = new ConcurrentHashMap<>();
-
+    private static final Map<String, Controller> controllers = Maps.newHashMap();
     private static final HandlerMapping handlerMapping = new HandlerMapping();
+    private static final ForwardController forwardController = new ForwardController();
 
     private HandlerMapping() {
         init();
     }
 
     private static void init() {
-        controllers.put("/index.html", new HomeController());
-
+        controllers.put("/", new HomeController());
+        controllers.put("/user/create", new SignupController());
     }
 
     public static HandlerMapping of() {
@@ -31,7 +29,7 @@ public class HandlerMapping {
         Controller controller = controllers.get(httpRequest.getUrl());
 
         if(controller == null) {
-            return new HelloWorldController();
+            return forwardController;
         }
         return controller;
     }
