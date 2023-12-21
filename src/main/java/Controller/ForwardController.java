@@ -2,11 +2,12 @@ package Controller;
 
 import HttpRequest.HttpRequest;
 import HttpResponse.HttpResponse;
+import util.IOUtils;
 
-public class HelloWorldController implements Controller{
+public class ForwardController implements Controller {
 
     @Override
     public void execute(HttpRequest httpRequest, HttpResponse httpResponse) {
-        httpResponse.addContext("Hello World");
+        httpResponse.addContext(IOUtils.getFileText(httpRequest.getUrl()));
     }
 }
