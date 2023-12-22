@@ -46,7 +46,14 @@
 - [ ] 테스트 코드 작성
 
 ### 요구사항 3 - post 방식으로 회원가입
-* 
+- [ ] post 메서드 지원
+  - [x] Body 데이터를 읽고 이를 바탕으로 requestBody 생성 
+  - [ ] Body 데이터가 있을 시 Body 데이터를 기준으로 User 생성
+- [ ] 리팩토링
+  - [x] Parser 클래스 합치기
+  - [ ] 예외 처리
+  - [x] Forward controller 생성
+- [ ] 테스트 코드 작성
 
 ### 요구사항 4 - redirect 방식으로 이동
 * 

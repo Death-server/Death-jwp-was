@@ -6,6 +6,8 @@ import service.SignupService;
 import model.User;
 import util.IOUtils;
 
+import java.io.IOException;
+
 public class SignupController implements Controller {
 
     @Override
@@ -17,7 +19,7 @@ public class SignupController implements Controller {
         httpResponse.addContext(IOUtils.getFileText("/index.html"));
     }
 
-    private User createUser(HttpRequest httpRequest) {
+    private User createUser(HttpRequest httpRequest)  {
         final String USERID_KEY = "userId";
         final String PASSWORD_KEY = "password";
         final String NAME_KEY = "name";

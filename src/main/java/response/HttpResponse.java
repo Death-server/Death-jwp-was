@@ -1,5 +1,7 @@
 package response;
 
+import request.HttpMethod;
+
 public class HttpResponse {
 
     private final ResponseHeader responseHeader;
@@ -34,4 +36,6 @@ public class HttpResponse {
         }
         throw new RuntimeException(NO_HEADER_EXCEPTION);
     }
+
+
 }

@@ -25,11 +25,11 @@ public class HttpRequest {
         return requestHeader.getUrl();
     }
 
-    public String getQueryValue(String key) {
+    public String getQueryValue(String key)  {
         String queryValue = requestHeader.getQueryValue(key);
 
         if(Strings.isNullOrEmpty(queryValue)) {
-            final String INVALID_QUERY_EXCEPTION = "맞지 않는 쿼리입니다";
+            final String INVALID_QUERY_EXCEPTION = "맞지 않는 쿼리임";
             throw new IllegalArgumentException(INVALID_QUERY_EXCEPTION);
         }
 

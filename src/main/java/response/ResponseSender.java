@@ -10,6 +10,8 @@ public class ResponseSender {
     private static final Logger log = LoggerFactory.getLogger(ResponseSender.class);
 
     private static DataOutputStream dos;
+    private static final String HEADER_BODY_SEPARATOR = "\r\n";
+
 
     public static synchronized void send(DataOutputStream dataOutputStream, HttpResponse httpResponse) throws IOException {
         dos = dataOutputStream;
@@ -19,9 +21,6 @@ public class ResponseSender {
     public static void forward(HttpResponse httpResponse) {
 
         int bodySize = httpResponse.getBodySize();
-
-
-        final String HEADER_BODY_SEPARATOR = "\r\n";
 
         try {
             dos.writeBytes(httpResponse.getHeader(HttpStatus.OK_200));

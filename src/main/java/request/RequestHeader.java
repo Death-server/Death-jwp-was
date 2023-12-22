@@ -1,5 +1,6 @@
 package request;
 
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
@@ -11,12 +12,11 @@ public class RequestHeader {
     private final String version;
     private final HttpMethod method;
     private final String url;
-    private Map<String, String> queries;
+    private Map<String, String> queries = Maps.newHashMap();
 
 
     public RequestHeader(String header) {
         logger.debug("RequestHeader Constructor");
-
 
         String[] parsedHeaders = HttpRequestUtils.parseRequestFirstLine(header);
 
@@ -29,21 +29,10 @@ public class RequestHeader {
             this.queries = HttpRequestUtils.parseQueryString(parsedHeaders[QUERY]);
         }
 
-        this.method = validMethod(parsedHeaders[PARSED_METHOD]);
+        this.method = HttpMethod.changeStringToMethod(parsedHeaders[PARSED_METHOD]);
         this.version = parsedHeaders[PARSED_VERSION];
         this.url = parsedHeaders[PARSED_URL];
     }
-
-    private HttpMethod validMethod(String method) {
-        final String NO_METHOD_EXCEPTION = "처리할 수 있는 메서드가 없음";
-
-        if(method.equals(HttpMethod.GET.getMethod())) {
-            return HttpMethod.GET;
-        }
-
-        throw new InvalidParameterException(NO_METHOD_EXCEPTION);
-    }
-
 
     public String getUrl() {
         return url;
