@@ -40,7 +40,6 @@ public class DispatcherServlet implements Runnable {
                 String key = HttpRequestUtils.parseHeader(header).getKey();
                 String value = HttpRequestUtils.parseHeader(header).getValue();
                 log.debug(value);
-
                 if(key.equals("Content-Length")) {
                     bodySize = Integer.parseInt(value);
                 }
