@@ -62,7 +62,7 @@ public class RequestHandler extends Thread {
                         (!user.getPassword().equals(params.get("password")))) {
                     HashMap<String, String> cookie = new HashMap<>();
                     cookie.put("logined", "false");
-                    response302Header(new DataOutputStream(out),"/user/login_failed.html", null);
+                    response302Header(new DataOutputStream(out),"/user/login_failed.html", cookie);
                 } else {
                     Map<String, String> cookie = new HashMap<>();
                     cookie.put("logined", "true");
