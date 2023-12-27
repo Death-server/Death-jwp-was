@@ -3,6 +3,7 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,7 @@ import util.IOUtils;
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
-    private Socket connection;
+    private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -28,9 +29,7 @@ public class RequestHandler extends Thread {
                 connection.getPort());
 
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            BufferedReader br =
-                    new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             String line = br.readLine();
             log.debug("request line : {}", line);
             if (line == null) {
@@ -40,11 +39,14 @@ public class RequestHandler extends Thread {
             String[] tokens = line.split(" ");
 
             int contentLength = 0;
+            Map<String, String> cookies = new HashMap<>();
             while (!line.isEmpty()) {
                 line = br.readLine();
                 log.debug("header : {}", line);
                 if(line.contains("Content-Length")) {
                     contentLength = getContentLength(line);
+                } else if(line.contains("Cookie")) {
+                    cookies = getCookies(line);
                 }
             }
 
@@ -58,16 +60,24 @@ public class RequestHandler extends Thread {
                 User user = DataBase.findUserById(params.get("userId"));
                 if((user == null) ||
                         (!user.getPassword().equals(params.get("password")))) {
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("logined", "false");
+                    HashMap<String, String> cookie = new HashMap<>();
+                    cookie.put("logined", "false");
                     response302Header(new DataOutputStream(out),"/user/login_failed.html", null);
                 } else {
-                    HashMap<String, String> map = new HashMap<>();
-                    map.put("logined", "true");
-                    response302Header(new DataOutputStream(out), "/index.html", map);
+                    Map<String, String> cookie = new HashMap<>();
+                    cookie.put("logined", "true");
+                    response302Header(new DataOutputStream(out), "/index.html", cookie);
                 }
-            }
-            else if(("/user/create".equals(url))) {
+            } else if(("/user/list".equals(url))) {
+                String isLogined = cookies.get("logined");
+                if(isLogined == null) {
+                    response302Header(new DataOutputStream(out), "/user/login.html", null);
+                }else if(isLogined.equals("true")) {
+                    response302Header(new DataOutputStream(out), "/user/list.html", null);
+                } else {
+                    response302Header(new DataOutputStream(out), "/user/login.html", null);
+                }
+            }else if(("/user/create".equals(url))) {
                 String body = IOUtils.readData(br, contentLength);
                 log.debug(contentLength + "");
                 Map<String, String> params =
@@ -96,6 +106,11 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private Map<String, String> getCookies(String line) {
+        String[] headerTokens = line.split(":");
+        return HttpRequestUtils.parseCookies(headerTokens[1].trim());
     }
 
     private int getContentLength(String line) {
