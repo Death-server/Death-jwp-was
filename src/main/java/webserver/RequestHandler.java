@@ -4,8 +4,10 @@ import java.io.*;
 import java.net.Socket;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.Map;
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,15 +50,33 @@ public class RequestHandler extends Thread {
 
             String url = tokens[1];
 
-            if(("/user/create".equals(url))) {
+            if("/user/login".equals(url)) {
+                String body = IOUtils.readData(br, contentLength);
+                log.debug(contentLength + "");
+                Map<String, String> params =
+                        HttpRequestUtils.parseQueryString(body);
+                User user = DataBase.findUserById(params.get("userId"));
+                if((user == null) ||
+                        (!user.getPassword().equals(params.get("password")))) {
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("logined", "false");
+                    response302Header(new DataOutputStream(out),"/user/login_failed.html", null);
+                } else {
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("logined", "true");
+                    response302Header(new DataOutputStream(out), "/index.html", map);
+                }
+            }
+            else if(("/user/create".equals(url))) {
                 String body = IOUtils.readData(br, contentLength);
                 log.debug(contentLength + "");
                 Map<String, String> params =
                         HttpRequestUtils.parseQueryString(body);
                 User user = new User(params.get("userId"), params.
                         get("password"), params.get("name"), params.get("email"));
+                DataBase.addUser(user);
                 log.debug("User : {}", user);
-                response302Header(new DataOutputStream(out), "/index.html");
+                response302Header(new DataOutputStream(out), "/index.html", null);
             } else if (url.startsWith("/user/create")) {
                 int index = url.indexOf("?");
                 String queryString = url.substring(index+1);
@@ -65,7 +85,7 @@ public class RequestHandler extends Thread {
                 User user = new User(params.get("userId"), params.
                         get("password"), params.get("name"), params.get("email"));
                 log.debug("User : {}", user);
-                response302Header(new DataOutputStream(out), "/index.html");
+                response302Header(new DataOutputStream(out), "/index.html", null);
             } else {
                 DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = Files.readAllBytes(new File("./webapp" +
@@ -94,15 +114,25 @@ public class RequestHandler extends Thread {
         }
     }
 
-    private void response302Header(DataOutputStream dos, String url) {
+    private void response302Header(DataOutputStream dos, String url, Map<String, String> cookie) {
         try {
             dos.writeBytes("HTTP/1.1 302 Redirect \r\n");
             dos.writeBytes("Location: " + url + "\r\n");
+            if(cookie != null) {
+                dos.writeBytes("Set-Cookie: ");
+                for (String key : cookie.keySet()) {
+                    dos.writeBytes(key + "=" + cookie.get(key) + ";");
+                }
+                dos.writeBytes("path=/");
+                dos.writeBytes("\r\n");
+            }
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
+
+
 
     private void responseBody(DataOutputStream dos, byte[] body) {
         try {
