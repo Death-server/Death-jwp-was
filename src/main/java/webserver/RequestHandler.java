@@ -44,9 +44,11 @@ public class RequestHandler extends Thread {
             Map<String, String> requestHeaders = new HashMap<>();
             Map<String, String> requestParam = new HashMap<>();
             DataOutputStream dos = new DataOutputStream(out);
+
             if (br.ready()) {
+                //RequestLine Parsing
                 requestLine = br.readLine();
-                System.out.println("requestLine = " + requestLine);
+                log.info("requestLine: ", requestLine);
                 String[] splitRequestLine = requestLine.split(" ");
                 requestMethod = splitRequestLine[0];
                 path = splitRequestLine[1];
@@ -57,7 +59,9 @@ public class RequestHandler extends Thread {
                     String[] headerKeyVal = line.split(": ");
                     requestHeaders.put(headerKeyVal[0], headerKeyVal[1]);
                 }
+                log.info(requestHeaders.toString());
 
+                //QueryString
                 if (path.contains("?")) {
                     String[] pathQueryString = path.split("\\?");
                     path = pathQueryString[0];
@@ -71,11 +75,13 @@ public class RequestHandler extends Thread {
                             }
                     );
                 }
+
+                //RequestBody
                 String contentLength = requestHeaders.getOrDefault("Content-Length", null);
                 if (contentLength != null) {
                     responseBody = IOUtils.readData(br, Integer.parseInt(contentLength));
-                    String[] splitRersponseBody = responseBody.split("&");
-                    Arrays.stream(splitRersponseBody).forEach(
+                    String[] splitResponseBody = responseBody.split("&");
+                    Arrays.stream(splitResponseBody).forEach(
                             item -> {
                                 String[] keyVal = item.split("=");
                                 requestParam.put(keyVal[0], keyVal[1]);
@@ -83,18 +89,17 @@ public class RequestHandler extends Thread {
                     );
                 }
 
+                //Step1
                 if (requestMethod.equals("GET") && (path.equals("/index.html") || path.equals("/"))) {
-                    byte[] body = Files.readAllBytes(new File("./webapp/index.html").toPath());
-                    response200Header(dos, body.length);
-                    responseBody(dos, body);
+                    response200(dos, "/index.html");
                 }
 
+                //Step2
                 if (requestMethod.equals("GET") && path.equals("/user/form.html")) {
-                    byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
-                    response200Header(dos, body.length);
-                    responseBody(dos, body);
+                    response200(dos, path);
                 }
 
+                //Step3
                 if (requestMethod.equals("GET") && path.equals("/user/create")) {
                     String userId = requestParam.get("userId");
                     String password = requestParam.get("password");
@@ -102,23 +107,81 @@ public class RequestHandler extends Thread {
                     String email = requestParam.get("email");
                     DataBase.addUser(new User(userId, password, name, email));
 
-                    byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
-                    response200Header(dos, body.length);
-                    responseBody(dos, body);
+                    response200(dos, "/index.html");
                 }
 
+                //Step4
                 if (requestMethod.equals("POST") && path.equals("/user/create")) {
-                    String userId = requestParam.get("userId");
-                    String password = requestParam.get("password");
-                    String name = requestParam.get("name");
-                    String email = requestParam.get("email");
-                    DataBase.addUser(new User(userId, password, name, email));
+                    String userId = requestParam.getOrDefault("userId", null);
+                    String password = requestParam.getOrDefault("password", null);
+                    String name = requestParam.getOrDefault("name", null);
+                    String email = requestParam.getOrDefault("email", null);
 
-                    byte[] body = Files.readAllBytes(new File("./webapp" + "/index.html").toPath());
-                    response302Header(dos, body.length, "http://localhost:8080/index.html");
-                    responseBody(dos, body);
+                    if (areValidParamsForCreate(userId, password, name, email)) {
+                        DataBase.addUser(new User(userId, password, name, email));
+                        response302(dos, "/index.html");
+                    }
+                    //TODO : 회원가입 에러
+                }
+
+                //Step5
+                if (requestMethod.equals("GET") && path.equals("/user/login.html")) {
+                    response200(dos, path);
+                }
+
+                if (requestMethod.equals("POST") && path.equals("/user/login")) {
+                    String userId = requestParam.getOrDefault("userId", null);
+                    String password = requestParam.getOrDefault("password", null);
+                    if (!areValidParamsForLogin(userId, password)) {
+                        responseLogin(dos,"/user/login_failed.html","logined=false; Path=/");
+                    }
+
+                    User findUser = DataBase.findUserById(userId);
+                    if (findUser == null) {
+                        responseLogin(dos,"/user/login_failed.html","logined=false; Path=/");
+                    }
+
+                    responseLogin(dos,"/index.html","logined=true; Path=/");
                 }
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private static boolean areValidParamsForLogin(String userId, String password) {
+        return userId != null && password != null;
+    }
+
+    private static boolean areValidParamsForCreate(String userId, String password, String name, String email) {
+        return userId != null && password != null && name != null && email != null;
+    }
+
+    private void response302(DataOutputStream dos, String path) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        response302Header(dos, body.length, "http://localhost:8080/index.html");
+        responseBody(dos, body);
+    }
+
+    private void response200(DataOutputStream dos, String path) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private void responseLogin(DataOutputStream dos, String path, String cookie) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        responseLoginHeader(dos, body.length, cookie);
+        responseBody(dos, body);
+    }
+
+    private void responseLoginHeader(DataOutputStream dos, int lengthOfBodyContent, String cookie) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Set-Cookie: " + cookie + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
