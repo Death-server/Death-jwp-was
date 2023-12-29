@@ -17,6 +17,7 @@ import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 import util.IOUtils;
 
 public class RequestHandler extends Thread {
@@ -66,14 +67,7 @@ public class RequestHandler extends Thread {
                     String[] pathQueryString = path.split("\\?");
                     path = pathQueryString[0];
                     String queryStrings = pathQueryString[1];
-
-                    String[] splitQueryStrings = queryStrings.split("&");
-                    Arrays.stream(splitQueryStrings).forEach(
-                            item -> {
-                                String[] keyVal = item.split("=");
-                                requestParam.put(keyVal[0], keyVal[1]);
-                            }
-                    );
+                    requestParam.putAll(HttpRequestUtils.parseQueryString(queryStrings));
                 }
 
                 //RequestBody
@@ -83,7 +77,7 @@ public class RequestHandler extends Thread {
                     String[] splitResponseBody = responseBody.split("&");
                     Arrays.stream(splitResponseBody).forEach(
                             item -> {
-                                String[] keyVal = item.split("=");
+                                String[] keyVal = item.split("=", 2);
                                 requestParam.put(keyVal[0], keyVal[1]);
                             }
                     );
@@ -133,15 +127,30 @@ public class RequestHandler extends Thread {
                     String userId = requestParam.getOrDefault("userId", null);
                     String password = requestParam.getOrDefault("password", null);
                     if (!areValidParamsForLogin(userId, password)) {
-                        responseLogin(dos,"/user/login_failed.html","logined=false; Path=/");
+                        responseLogin(dos, "/user/login_failed.html", "logined=false; Path=/");
                     }
 
                     User findUser = DataBase.findUserById(userId);
                     if (findUser == null) {
-                        responseLogin(dos,"/user/login_failed.html","logined=false; Path=/");
+                        responseLogin(dos, "/user/login_failed.html", "logined=false; Path=/");
                     }
 
-                    responseLogin(dos,"/index.html","logined=true; Path=/");
+                    responseLogin(dos, "/index.html", "logined=true; Path=/");
+                }
+
+                if (requestMethod.equals("GET") && path.equals("/user/list")) {
+                    String cookie = requestHeaders.getOrDefault("Cookie", null);
+                    if (cookie == null) {
+                        response200(dos, "/user/login.html");
+                    }
+
+                    Map<String, String> cookies = HttpRequestUtils.parseCookies(cookie);
+                    String logined = cookies.getOrDefault("logined", null);
+                    if (logined == null || Boolean.parseBoolean(logined)) {
+                        response200(dos, "/user/login.html");
+                    }
+                    //TODO: StringBuilder 사용해서 출력
+                    response200(dos, "/user/list.html");
                 }
             }
         } catch (IOException e) {
