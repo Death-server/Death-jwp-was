@@ -14,7 +14,7 @@ public class IOUtils {
      */
     public static String readData(BufferedReader br, int contentLength) throws IOException {
         char[] body = new char[contentLength];
-        br.read(body, 0, contentLength);
-        return String.copyValueOf(body);
+        br.read(body, 0, contentLength); //body에 저장하고, 0은 읽기를 시작할 배열의 인덱스, contentLength는 읽어들일 최대 길이.
+        return String.copyValueOf(body); //문자 배열을 문자열로 변환.
     }
 }
