@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class RequestHandler extends Thread {
             if (br.ready()) {
                 //RequestLine Parsing
                 requestLine = br.readLine();
-                log.info("requestLine: ", requestLine);
+                log.info("requestLine: " + requestLine);
                 String[] splitRequestLine = requestLine.split(" ");
                 requestMethod = splitRequestLine[0];
                 path = splitRequestLine[1];
@@ -60,7 +61,6 @@ public class RequestHandler extends Thread {
                     String[] headerKeyVal = line.split(": ");
                     requestHeaders.put(headerKeyVal[0], headerKeyVal[1]);
                 }
-                log.info(requestHeaders.toString());
 
                 //QueryString
                 if (path.contains("?")) {
@@ -138,6 +138,7 @@ public class RequestHandler extends Thread {
                     responseLogin(dos, "/index.html", "logined=true; Path=/");
                 }
 
+                //Step6
                 if (requestMethod.equals("GET") && path.equals("/user/list")) {
                     String cookie = requestHeaders.getOrDefault("Cookie", null);
                     if (cookie == null) {
@@ -149,8 +150,26 @@ public class RequestHandler extends Thread {
                     if (logined == null || Boolean.parseBoolean(logined)) {
                         response200(dos, "/user/login.html");
                     }
-                    //TODO: StringBuilder 사용해서 출력
-                    response200(dos, "/user/list.html");
+                    Collection<User> users = DataBase.findAll();
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<table border='1'>");
+                    for (User user : users) {
+                        sb.append("<tr>")
+                                .append("<td>" + user.getUserId() + "</td>")
+                                .append("<td>" + user.getName() + "</td>")
+                                .append("<td>" + user.getEmail() + "</td>")
+                                .append("</tr>");
+                    }
+                    sb.append("</table>");
+                    byte[] body = sb.toString().getBytes();
+                    response200Header(dos,body.length);
+                    responseBody(dos, body);
+                }
+
+                //Step7
+                if (requestMethod.equals("GET") && (path.contains(".css") || path.contains(".js") || path.contains(".ico"))) {
+                    response200MIME(dos, path);
                 }
             }
         } catch (IOException e) {
@@ -169,6 +188,24 @@ public class RequestHandler extends Thread {
     private void response302(DataOutputStream dos, String path) throws IOException {
         byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
         response302Header(dos, body.length, "http://localhost:8080/index.html");
+        responseBody(dos, body);
+    }
+
+    private void response200MIME(DataOutputStream dos, String path) throws IOException {
+        byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
+        String contentType = null;
+        if (path.contains(".css")) {
+            contentType = "text/css";
+        }
+        if (path.contains(".js")) {
+            contentType = "text/javascript";
+        }
+        if (path.contains(".ico")) {
+            contentType = "image/vnd.microsoft.icon";
+        }
+        log.info("contentType: " + contentType);
+
+        response200MIMEHeader(dos, body.length, contentType);
         responseBody(dos, body);
     }
 
@@ -202,6 +239,17 @@ public class RequestHandler extends Thread {
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("Location: " + locationUrl + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response200MIMEHeader(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: " + contentType + "\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
