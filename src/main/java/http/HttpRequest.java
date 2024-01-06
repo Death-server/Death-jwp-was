@@ -12,9 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
-    private String method;
-    private String path;
-    private String httpVersion;
+    private RequestLine requestLine;
     private Map<String, String> headers;
     private Map<String, String> parameters;
 
@@ -54,27 +52,29 @@ public class HttpRequest {
     }
 
     private void parseRequestLine(BufferedReader br) throws IOException {
-        String requestLine = br.readLine();
-        String[] splitRequestLine = requestLine.split(" ");
-        method = splitRequestLine[0];
-        path = splitRequestLine[1];
-        httpVersion = splitRequestLine[2];
-
-        //QueryString
-        if (path.contains("?")) {
-            String[] pathQueryString = path.split("\\?");
-            path = pathQueryString[0];
-            String queryStrings = pathQueryString[1];
-            parameters.putAll(HttpRequestUtils.parseQueryString(queryStrings));
-        }
+        requestLine = new RequestLine(br.readLine());
+        parameters.putAll(requestLine.getParams());
     }
 
-    public String getMethod(){
-        return this.method;
+    public boolean isLogin(){
+        String cookie = headers.get("Cookie");
+        if (cookie == null) {
+            return false;
+        }
+        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookie);
+        String logined = cookies.getOrDefault("logined", null);
+        if (logined.equals("false")) {
+            return false;
+        }
+        return true;
+    }
+
+    public HttpMethod getMethod(){
+        return requestLine.getMethod();
     }
 
     public String getPath(){
-        return this.path;
+        return requestLine.getPath();
     }
 
     public String getHeader(String key) {
