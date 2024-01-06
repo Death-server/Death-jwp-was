@@ -12,20 +12,8 @@ import java.util.Map;
 
 public class ListUserController extends AbstractController{
     @Override
-    protected void doPost(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
-        return;
-    }
-
-    @Override
     protected void doGet(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
-        String cookie = httpRequest.getHeader("Cookie");
-        if (cookie == null) {
-            httpResponse.forward("/user/login.html");
-        }
-
-        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookie);
-        String logined = cookies.getOrDefault("logined", null);
-        if (logined == null || Boolean.parseBoolean(logined)) {
+        if (!httpRequest.isLogin()) {
             httpResponse.forwardBody("/user/login.html");
         }
         Collection<User> users = DataBase.findAll();

@@ -27,11 +27,6 @@ public class LoginFormController extends AbstractController {
         httpResponse.sendRedirect("/index.html");
     }
 
-    @Override
-    protected void doGet(HttpRequest httpRequest, HttpResponse httpResponse) throws IOException {
-
-    }
-
     private static boolean areValidParamsForLogin(String userId, String password) {
         return userId != null && password != null;
 
