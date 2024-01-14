@@ -2,6 +2,7 @@ package controller;
 
 import request.HttpRequest;
 import response.HttpResponse;
+import response.HttpStatus;
 import util.IOUtils;
 
 public class HomeController implements Controller {
@@ -10,6 +11,6 @@ public class HomeController implements Controller {
     public void execute(HttpRequest httpRequest, HttpResponse httpResponse) {
         final String HOME = "/index.html";
 
-        httpResponse.addContext(IOUtils.getFileText(HOME));
+        httpResponse.forward(HOME);
     }
 }

@@ -19,9 +19,13 @@ public class HandlerMapper {
     private static void init() {
         final String HOME = "/";
         final String SIGNUP = "/user/create";
+        final String LOGIN = "/user/login";
+        final String LIST = "/user/list";
 
         controllers.put(HOME, new HomeController());
         controllers.put(SIGNUP, new SignupController());
+        controllers.put(LOGIN, new LoginController());
+        controllers.put(LIST, new ListController());
     }
 
     public static HandlerMapper of() {

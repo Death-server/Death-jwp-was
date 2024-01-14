@@ -47,7 +47,7 @@ public class HttpRequestUtils {
         final String INVALID_HEADER_EXCEPTION = "Request 헤더가 이상함";
 
         if(Strings.isNullOrEmpty(header)) {
-            throw new IllegalArgumentException(INVALID_HEADER_EXCEPTION);
+            throw new IllegalArgumentException(INVALID_HEADER_EXCEPTION + ": " + header);
         }
 
 

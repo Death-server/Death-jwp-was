@@ -26,7 +26,7 @@ public class WebServer {
             log.info("Web Application Server started {} port.", port);
             Socket connection;
             while ((connection = listenSocket.accept()) != null) {
-                executor.submit(new DispatcherServlet(connection));
+                executor.submit(new RequestHandler(connection));
             }
         } finally {
             executor.shutdown();

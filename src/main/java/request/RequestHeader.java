@@ -1,45 +1,40 @@
 package request;
 
-import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import session.HttpSession;
+import session.HttpSessions;
 import util.HttpRequestUtils;
-import java.security.InvalidParameterException;
+
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class RequestHeader {
-    private static final Logger logger = LoggerFactory.getLogger(RequestHeader.class);
-    private final String version;
-    private final HttpMethod method;
-    private final String url;
-    private Map<String, String> queries = Maps.newHashMap();
+
+    private Map<String, String> requestHeaders;
+    private Map<String, String> cookies;
+    private final String SESSION_ID = "JSESSIONID";
 
 
-    public RequestHeader(String header) {
-        logger.debug("RequestHeader Constructor");
+    public RequestHeader(Map<String, String> headers) {
+        final String COOKIE = "Cookie";
 
-        String[] parsedHeaders = HttpRequestUtils.parseRequestFirstLine(header);
+        this.requestHeaders = headers;
+        this.cookies = HttpRequestUtils.parseCookies(headers.get(COOKIE));
+    }
 
-        final int PARSED_METHOD = 0;
-        final int PARSED_VERSION = 1;
-        final int PARSED_URL = 2;
-        final int QUERY = 3;
-
-        if(header.contains("?")) {
-            this.queries = HttpRequestUtils.parseQueryString(parsedHeaders[QUERY]);
+    public int getContentLength() {
+        final String CONTENT_LENGTH = "Content-Length";
+        if(this.requestHeaders.get(CONTENT_LENGTH) == null) {
+            return 0;
         }
-
-        this.method = HttpMethod.changeStringToMethod(parsedHeaders[PARSED_METHOD]);
-        this.version = parsedHeaders[PARSED_VERSION];
-        this.url = parsedHeaders[PARSED_URL];
+        return Integer.parseInt(this.requestHeaders.get(CONTENT_LENGTH));
     }
 
-    public String getUrl() {
-        return url;
+    public String getCookie(String key) {
+        return cookies.get(key);
     }
 
-    public String getQueryValue(String key) {
-        return queries.get(key);
+    public String getSessionId() {
+        return cookies.get(SESSION_ID);
     }
-
 }

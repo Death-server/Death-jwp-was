@@ -18,4 +18,5 @@ public enum HttpStatus {
     public String getMessage() {
         return message;
     }
+
 }

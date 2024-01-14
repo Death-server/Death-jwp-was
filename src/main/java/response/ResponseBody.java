@@ -2,22 +2,30 @@ package response;
 
 public class ResponseBody {
 
-    private String context;
+    private byte[] body;
+
 
     public ResponseBody() {
-
     }
 
 
-    public void setContext(String context) {
-        final String NO_CONTEXT_EXCEPTION = "데이터가 없음";
-        if(context == null) {
+    public void setBody(byte[] body) {
+        String NO_CONTEXT_EXCEPTION = "데이터가 없음";
+
+        if(body == null) {
             throw new RuntimeException(NO_CONTEXT_EXCEPTION);
         }
-        this.context = context;
+        this.body = body;
     }
 
-    public String getContext() {
-        return this.context;
+    public byte[] getBody() {
+        return this.body;
+    }
+
+    public int getBodyLength() {
+        if(this.body == null) {
+            return 0;
+        }
+        return this.body.length;
     }
 }

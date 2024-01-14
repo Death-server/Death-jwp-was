@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class IOUtils {
 
@@ -18,13 +19,12 @@ public class IOUtils {
         return String.copyValueOf(body);
     }
 
-    public static String getFileText(String url) {
+    public static byte[] getFileText(String url) {
         final String BASE_URL = "webapp";
         try {
             File file = new File(BASE_URL + url);
             if(file.isFile()) {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                return readData(br, (int) file.length());
+                return Files.readAllBytes(file.toPath());
             }
         } catch(IOException ioException) {
             // 404 Not Found

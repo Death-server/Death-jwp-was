@@ -9,25 +9,22 @@ import java.io.IOException;
 public class ResponseSender {
     private static final Logger log = LoggerFactory.getLogger(ResponseSender.class);
 
-    private static DataOutputStream dos;
     private static final String HEADER_BODY_SEPARATOR = "\r\n";
 
 
-    public static synchronized void send(DataOutputStream dataOutputStream, HttpResponse httpResponse) throws IOException {
-        dos = dataOutputStream;
-        forward(httpResponse);
-        dos.flush();
-    }
-    public static void forward(HttpResponse httpResponse) {
-
+    public static void send(DataOutputStream dataOutputStream, HttpResponse httpResponse) throws IOException {
         int bodySize = httpResponse.getBodySize();
 
         try {
-            dos.writeBytes(httpResponse.getHeader(HttpStatus.OK_200));
-            dos.writeBytes(HEADER_BODY_SEPARATOR);
-            dos.write(httpResponse.getBodyContext().getBytes(), 0, bodySize);
+            dataOutputStream.writeBytes(httpResponse.getHeader());
+            dataOutputStream.writeBytes(HEADER_BODY_SEPARATOR);
+            if(bodySize != 0) {
+                dataOutputStream.write(httpResponse.getBodyContext(), 0, bodySize);
+            }
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+        dataOutputStream.flush();
+        dataOutputStream.close();
     }
 }
